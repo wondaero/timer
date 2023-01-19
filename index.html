@@ -85,6 +85,9 @@
 
                 t.stop = function(){
                     t.nowTime = new Date().getTime();
+                    const sec = (t.nowTime - t.startTime) / 1000;
+                    txtTimer.innerHTML = '<div>' + sec + '초</div>';
+                    handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
                     t.gameOver();
                 };
                 
@@ -94,7 +97,7 @@
                     txtTimer.innerHTML = '<div>' + sec + '초</div>';
                     handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
 
-                    if(!t.isOver2 && sec > 2){
+                    if(!t.isOver2 && sec > 3){
                         txtTimer.classList.add('off');
                         handle.classList.add('off');
                         t.isOver2 = true;
