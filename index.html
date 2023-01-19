@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>배꼽시계</title>
+        <link rel="stylesheet" href="assets/css/normalize.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+
+        <style>
+            header{
+                box-sizing: border-box; padding: 10px; display: flex; align-items: center; justify-content: space-between;
+                background: gold; margin-bottom: 10px;
+            }
+            .btn-start{outline: 0; width: 80px; background: silver; border: 0; padding: 5px 0; border-radius: 5px;}
+            h1{margin: 0; padding: 0;}
+
+            .content-wrapper{width: 280px; margin: 0 auto; padding: 0 10px; box-sizing: border-box;}
+            .txt-timer.off, .handle.off{opacity: 0; transition: opacity .5s;}
+            .txt-timer{text-align: center; font-size: 20px; margin-bottom: 10px;}
+            .img-timer{
+                border-radius: 50%; width: 120px; height: 120px; border: 5px solid gold; box-sizing: border-box; position: relative;
+                background: linear-gradient(135deg, #000, navy); margin: 0 auto; margin-bottom: 10px;
+            }
+            .handle{position: absolute; top: 0; left: 0; right: 0; bottom: 0; box-sizing: border-box;}
+            .handle:after{
+                content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+                width: 2px; height: 50px; border-radius: 50% 50% 0 0; background: linear-gradient(red, transparent);
+            }
+
+            .stop-btn-wrapper{text-align: center;}
+            .btn-stop{background: #d00; color: #fff; padding: 30px; border: 0; outline: 0; font-size: 50px; border-radius: 8px;}
+        </style>
+        
+     </head>
+     <body>
+        <header>
+            <h1>t!mer</h1>
+            <button class="btn-start" onclick="timer.startGame();">시작</button>
+        </header>
+        <div class="content-wrapper">
+            <h2 id="guide" class="guide">시작버튼 클릭!</h2>
+            <div id="txtTimer" class="txt-timer">0초</div>
+            <div id="imgTimer" class="img-timer">
+                <div id="handle" class="handle"></div>
+            </div>
+            <div class="stop-btn-wrapper">
+                <button class="btn-stop" onclick="timer.stop();">STOP</button>
+            </div>
+        </div>
+
+        <script>
+            function getRandomNum(mn, mx){return Math.floor(Math.random() * (mx - mn + 1)) + mn;};
+
+            const guide = document.querySelector('#guide');
+            const txtTimer = document.querySelector('#txtTimer');
+            const imgTimer = document.querySelector('#imgTimer');
+            const handle = document.querySelector('#handle');
+            
+            const timer = new Timer();
+
+            function Timer () {
+                const t = this;
+                t.init = function () {
+                    t.questSec = 0;
+                    window.clearInterval(t.interval);
+                    t.interval;
+                    t.startTime = 0;
+                    t.nowTime = 0;
+                    t.rafCnt = 0;
+                    t.isOver2 = false;
+                    txtTimer.innerHTML = '<div>0초</div>';
+                    handle.style.transform = 'rotate(0)';
+                    txtTimer.classList.remove('off');
+                    handle.classList.remove('off');
+                }
+                t.init();
+
+                t.startGame = function(){
+                    t.init();
+                    t.questSec = getRandomNum(5, 10);
+                    t.startTime = new Date().getTime();
+                    guide.innerHTML = '<span>' + t.questSec + '초를 맞추세요.<span>';
+                    t.interval = setInterval(t.ing, 100);
+                }
+
+                t.stop = function(){
+                    t.nowTime = new Date().getTime();
+                    t.gameOver();
+                };
+                
+                t.ing = function(){
+                    t.nowTime = new Date().getTime();
+                    const sec = (t.nowTime - t.startTime) / 1000;
+                    txtTimer.innerHTML = '<div>' + sec + '초</div>';
+                    handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
+
+                    if(!t.isOver2 && sec > 2){
+                        txtTimer.classList.add('off');
+                        handle.classList.add('off');
+                        t.isOver2 = true;
+                    }else if(sec > t.questSec + 5){
+                        t.gameOver('over');
+                    }
+                }
+
+                t.gameOver = function(result){
+                    window.clearInterval(t.interval);
+                    txtTimer.classList.remove('off');
+                    handle.classList.remove('off');
+                    if(result == 'over'){
+                        guide.innerHTML = '<span>시간이 너무 지남...</span>';
+                    }else{
+                        guide.innerTHML = '시작버튼 클릭!';
+                    }
+                }
+            }
+        </script>
+     </body>
+</html>
