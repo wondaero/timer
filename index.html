@@ -7,6 +7,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
 
         <style>
+
+            body{opacity: .5;}
             header{
                 box-sizing: border-box; padding: 10px; display: flex; align-items: center; justify-content: space-between;
                 background: gold; margin-bottom: 10px;
@@ -17,6 +19,8 @@
             .content-wrapper{width: 280px; margin: 0 auto; padding: 0 10px; box-sizing: border-box;}
             .txt-timer.off, .handle.off{opacity: 0; transition: opacity .5s;}
             .txt-timer{text-align: center; font-size: 20px; margin-bottom: 10px;}
+            .integer{}
+            .decimal{font-size: 13px;}
             .img-timer{
                 border-radius: 50%; width: 120px; height: 120px; border: 5px solid gold; box-sizing: border-box; position: relative;
                 background: linear-gradient(135deg, #000, navy); margin: 0 auto; margin-bottom: 10px;
@@ -62,12 +66,12 @@
                 const t = this;
                 t.init = function () {
                     t.questSec = 0;
-                    window.clearInterval(t.interval);
-                    t.interval;
+                    window.cancelAnimationFrame(t.raf);
+                    t.raf;
                     t.startTime = 0;
                     t.nowTime = 0;
-                    t.rafCnt = 0;
                     t.isOver2 = false;
+                    t.isStop = false;
                     txtTimer.innerHTML = '<div>0초</div>';
                     handle.style.transform = 'rotate(0)';
                     txtTimer.classList.remove('off');
@@ -78,23 +82,30 @@
                 t.startGame = function(){
                     t.init();
                     t.questSec = getRandomNum(5, 10);
-                    t.startTime = new Date().getTime();
+                    t.startTime = window.performance.now();
                     guide.innerHTML = '<span>' + t.questSec + '초를 맞추세요.<span>';
-                    t.interval = setInterval(t.ing, 100);
+                    t.raf = window.requestAnimationFrame(t.ing);
                 }
 
                 t.stop = function(){
-                    t.nowTime = new Date().getTime();
-                    const sec = (t.nowTime - t.startTime) / 1000;
-                    txtTimer.innerHTML = '<div>' + sec + '초</div>';
-                    handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
+                    // t.nowTime = window.performance.now();
+                    // const sec = (t.nowTime - t.startTime) / 1000;
+                    // txtTimer.innerHTML = '<div>' + sec + '초</div>';
+                    // handle.style.transform = 'rotate(' + (sec / t.questSec * 360) + 'deg)';
                     t.gameOver();
                 };
                 
-                t.ing = function(){
-                    t.nowTime = new Date().getTime();
-                    const sec = (t.nowTime - t.startTime) / 1000;
-                    txtTimer.innerHTML = '<div>' + sec + '초</div>';
+                t.ing = function(timeStamp){
+                    if(t.isStop) return window.cancelAnimationFrame(t.raf);
+
+                    const sec = (timeStamp - t.startTime) / 1000;
+                    if(sec < 0) t.raf = window.requestAnimationFrame(t.ing);
+
+                    const secArr = ('' + sec).split('.');
+
+                    const secTemplate = '<div><span class="integer">' + secArr[0].padStart(2, 0) + '</span>.<span class="decimal">' + secArr[1].padEnd(16, 0); +'</span>초</div>';
+
+                    txtTimer.innerHTML = secTemplate;
                     handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
 
                     if(!t.isOver2 && sec > 3){
@@ -104,10 +115,13 @@
                     }else if(sec > t.questSec + 5){
                         t.gameOver('over');
                     }
+                    
+                    t.raf = window.requestAnimationFrame(t.ing);
                 }
 
                 t.gameOver = function(result){
-                    window.clearInterval(t.interval);
+                    t.isStop = true;
+                    t.raf = window.cancelAnimationFrame(t.raf);
                     txtTimer.classList.remove('off');
                     handle.classList.remove('off');
                     if(result == 'over'){
