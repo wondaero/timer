@@ -177,7 +177,7 @@
                     }else{
                         setTimeout(function(){
                             const stopTime = +txtTimer.innerText;
-                            diffSec.innerHTML = '오차: ' + Math.abs((t.questSec - stopTime));
+                            diffSec.innerHTML = '오차: ' + Math.abs(((t.questSec * 1000000000000000) - (stopTime * 1000000000000000)) / 1000000000000000);
                         }, 300);
                         guide.innerTHML = '시작버튼 클릭!';
                     }
