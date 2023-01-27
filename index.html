@@ -193,7 +193,9 @@
                     }else{
                         setTimeout(function(){
                             const stopTime = +txtTimer.innerText;
-                            diffSec.innerHTML = '오차: ' + Math.abs(((t.questSec * 100000) - (stopTime * 100000)) / 100000);
+                            const calcedSec = Math.abs(((t.questSec * 100000) - (stopTime * 100000)) / 100000);
+                            const roundCalcedSec = Math.round(calcedSec * 1000) / 1000;
+                            diffSec.innerHTML = '오차: ' + roundCalcedSec;
                         }, 300);
                         guide.innerTHML = '시작버튼 클릭!';
                     }
