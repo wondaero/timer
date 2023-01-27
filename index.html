@@ -7,7 +7,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
 
         <style>
-            body{opacity: .05;}
             header{
                 box-sizing: border-box; padding: 10px; display: flex; align-items: center; justify-content: space-between;
                 background: gold; margin-bottom: 10px;
@@ -86,6 +85,7 @@
             const txtTimer = document.querySelector('#txtTimer');
             const imgTimer = document.querySelector('#imgTimer');
             const handle = document.querySelector('#handle');
+            const diffSec = document.querySelector('#diffSec');
             
             const timer = new Timer();
 
@@ -106,6 +106,8 @@
                     handle.style.transform = 'rotate(0)';
                     txtTimer.classList.remove('off');
                     handle.classList.remove('off');
+                    diffSec.innerHTML = '';
+
                 }
                 t.init();
 
@@ -174,8 +176,8 @@
                         guide.innerHTML = '<span>시간이 너무 지남...</span>';
                     }else{
                         setTimeout(function(){
-                            const stopTime = +document.querySelector('#txtTimer').innerText;
-                            document.querySelector('#diffSec').innerHTML = '오차: ' + Math.abs((t.questSec - stopTime));
+                            const stopTime = +txtTimer.innerText;
+                            diffSec.innerHTML = '오차: ' + Math.abs((t.questSec - stopTime));
                         }, 300);
                         guide.innerTHML = '시작버튼 클릭!';
                     }
