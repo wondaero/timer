@@ -11,7 +11,6 @@
                 box-sizing: border-box; padding: 10px; display: flex; align-items: center; justify-content: space-between;
                 background: gold; margin-bottom: 10px;
             }
-            .btn-start{outline: 0; width: 80px; background: silver; border: 0; padding: 5px 0; border-radius: 5px;}
             h1{margin: 0; padding: 0;}
 
             .content-wrapper{width: 280px; margin: 0 auto; padding: 0 10px; box-sizing: border-box;}
@@ -36,7 +35,7 @@
             .txt-timer{text-align: center; font-size: 20px; margin-bottom: 10px;}
             .integer{}
             .decimal{font-size: 13px;}
-            .diff-sec{height: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;}
+            .diff-sec{height: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: #f00; font-weight: 900; font-size: 20px;}
             .img-timer{
                 border-radius: 50%; width: 120px; height: 120px; border: 5px solid gold; box-sizing: border-box; position: relative;
                 background: linear-gradient(135deg, #000, navy); margin: 0 auto; margin-bottom: 10px;
@@ -47,15 +46,17 @@
                 width: 2px; height: 50px; border-radius: 50% 50% 0 0; background: linear-gradient(transparent, red);
             }
 
-            .stop-btn-wrapper{text-align: center;}
-            .btn-stop{background: #d00; color: #fff; padding: 30px; border: 0; outline: 0; font-size: 50px; border-radius: 8px;}
+            .btn-wrapper{text-align: center;}
+            .btn-wrapper button{color: #fff; padding: 30px; border: 0; outline: 0; font-size: 50px; border-radius: 8px;}
+            .btn-wrapper button.hidden{display: none;}
+            .btn-stop{background: #d00;}
+            .btn-start{background: green;}
         </style>
         
      </head>
      <body>
         <header>
             <h1>t!mer</h1>
-            <button class="btn-start" onclick="timer.startGame();">시작</button>
         </header>
         <div class="content-wrapper">
             <div id="radios" class="radios">
@@ -73,8 +74,9 @@
             <div id="imgTimer" class="img-timer">
                 <div id="handle" class="handle"></div>
             </div>
-            <div class="stop-btn-wrapper">
-                <button class="btn-stop" onclick="timer.stop();">STOP</button>
+            <div class="btn-wrapper">
+                <button id="btnStart" class="btn-start" onclick="timer.startGame();">START</button>
+                <button id="btnStop" class="btn-stop hidden" onclick="timer.stop();">STOP</button>
             </div>
         </div>
 
@@ -86,6 +88,8 @@
             const imgTimer = document.querySelector('#imgTimer');
             const handle = document.querySelector('#handle');
             const diffSec = document.querySelector('#diffSec');
+            const btnStart = document.querySelector('#btnStart');
+            const btnStop = document.querySelector('#btnStop');
             
             const timer = new Timer();
 
@@ -106,6 +110,8 @@
                     handle.style.transform = 'rotate(0)';
                     txtTimer.classList.remove('off');
                     handle.classList.remove('off');
+                    btnStart.classList.remove('hidden');
+                    btnStop.classList.add('hidden');
                     diffSec.innerHTML = '';
 
                 }
@@ -114,10 +120,14 @@
                 t.startGame = function(){
                     t.init();
 
+                    btnStart.classList.add('hidden');
+                    btnStop.classList.remove('hidden');
+
                     const secVal = document.querySelector('#radios input:checked').value;
 
                     t.questSec = +secVal || getRandomNum(5, 10);
                     t.startTime = window.performance.now();
+                    t.startTime = new Date().getTime();
                     guide.innerHTML = '<span>' + t.questSec + '초를 맞추세요.<span>';
                     t.raf = window.requestAnimationFrame(t.ing);
                 }
@@ -131,8 +141,10 @@
                     t.gameOver();
                 };
                 
-                t.ing = function(timeStamp){
+                t.ing = function(){
                     if(t.isStop) return window.cancelAnimationFrame(t.raf);
+
+                    const timeStamp = new Date().getTime();
 
 
                     if(t.oldTimeStamp > timeStamp){
@@ -151,7 +163,7 @@
 
                     const secArr = ('' + sec).split('.');
 
-                    const secTemplate = '<div><span class="integer">' + secArr[0].padStart(2, 0) + '</span>.<span class="decimal">' + secArr[1].padEnd(16, 0); +'</span>초</div>';
+                    const secTemplate = '<div><span class="integer">' + secArr[0] + '</span>.<span class="decimal">' + secArr[1] +'</span></div>';
 
                     txtTimer.innerHTML = secTemplate;
                     handle.style.transform = 'rotate(' + (sec / t.questSec * 360)+ 'deg)';
@@ -172,12 +184,17 @@
                     t.raf = window.cancelAnimationFrame(t.raf);
                     txtTimer.classList.remove('off');
                     handle.classList.remove('off');
+
+                    btnStart.classList.remove('hidden');
+                    btnStop.classList.add('hidden');
+
                     if(result == 'over'){
                         guide.innerHTML = '<span>시간이 너무 지남...</span>';
                     }else{
                         setTimeout(function(){
                             const stopTime = +txtTimer.innerText;
-                            diffSec.innerHTML = '오차: ' + Math.abs(((t.questSec * 1000000000000000) - (stopTime * 1000000000000000)) / 1000000000000000);
+                            console.log(txtTimer.innerText);
+                            diffSec.innerHTML = '오차: ' + Math.abs(((t.questSec * 100000) - (stopTime * 100000)) / 100000);
                         }, 300);
                         guide.innerTHML = '시작버튼 클릭!';
                     }
